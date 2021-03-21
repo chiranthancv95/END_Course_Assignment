@@ -20,67 +20,10 @@ For example -  "# write a python program to add two numbers"
 * As we can see in the above example, there is a clear discriminator in the form of hash to inform the interpreter that it is a comment.<br>
 * So, we utilise this discriminator since it is uniform throughout the data to our advantage by taking the entire line after the has to be the description field and the newline which comes after that until the next encountered hash to be the code for the particular description.<br>
 * This way, we were able to get only the description and also the code for it.<br>
-* Code - 
-```python
-code_list = [[]]
-filename = '/content/data_cleaned_tabs_only.txt'
-
-with open(filename) as f:
-    if line.startswith('#'):
-      comment = line.split('\n#')
-      if code_list[-1] != []:
-        # Now we are in a new block
-        code_list.append(comment)
-    else:
-      stripped_line = line#.strip()
-      if stripped_line:
-        code_list[-1].append(stripped_line)       
-```
 * Then, using the regex commands, we formatted the dataset and then we converted that to the pandas dataframe.
-* Code - 
-```python
-raw_data_dict = {'Description' : [re.sub(r"^#(\d)*",'',x[0]).strip() for x in code_list], 'Code': [''.join(x[1:]) for x in code_list]}
-df = pd.DataFrame(raw_data_dict, columns=["Description", "Code"])
-```
 
 * Then, using the autopep8 libraries fix_code() function, the codes obtained were reformatted to adhere the PEP8 Guidelines.
 * Using the tokenize library in python, all of the code was tokenized.
-```python
-def fix_py(code):
-  '''
-  Fixing the raw code obtained by using autopep8 library
-  '''
-  code = autopep8.fix_code(code, options={'ignore': ['E402']})
-  io_obj = io.StringIO(code)
-  res = []
-  prev_toktype = tokenize.INDENT
-  last_lineno = -1
-  last_col = 0
-  for tok in tokenize.generate_tokens(io_obj.readline):
-      token_type = tok[0]
-      token_string = tok[1]
-      start_line, start_col = tok[2]
-      end_line, end_col = tok[3]
-      ltext = tok[4]
-      if start_line > last_lineno:
-          last_col = 0
-      if start_col > last_col:
-          res.append(" " * (start_col - last_col))
-      if token_type == tokenize.COMMENT:
-          pass
-      elif token_type == tokenize.STRING:
-          if prev_toktype != tokenize.INDENT:
-              if prev_toktype != tokenize.NEWLINE:
-                  if start_col > 0:
-                      res.append(token_string)
-      else:
-          res.append(token_string)
-      prev_toktype = token_type
-      last_col = end_col
-      last_lineno = end_line
-  res = ['\t' if a == '    ' else a for a in res]
-  return res
-  ```
 
 #### Processing Dataframe - 
 
@@ -146,7 +89,7 @@ then pass it through a position-wise feedforward layer
 
 ### **Loss Function** - 
 
-For loss function, it was found out that the CrossEntropyLoss is the best for this kind of problems. Although, we need to try CTCLoss function yet.
+For loss function, it was found out that the CrossEntropyLoss is the best for this kind of problems after trying out NLLloss, KLDIVLOSS loss functions.
 
 ### **Evaluation Metrics** - 
 **BLEU Score**
